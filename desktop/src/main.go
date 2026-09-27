@@ -171,16 +171,9 @@ func (a *App) boot() {
 		url = zbsworkDefaultServerURL
 	}
 	if url != "" {
-		log.Printf("boot: server mode, url=%s", url)
-		a.setStatus(desktopText(locale, copyStatusConnecting))
-		if err := waitHealth(locale, url, 60*time.Second); err != nil {
-			log.Printf("boot: waitHealth failed: %v", err)
-			a.setStatus(err.Error())
-			return
-		}
-		log.Printf("boot: health ok, calling showDashboard")
-		a.showDashboard(url)
-		log.Printf("boot: showDashboard returned")
+		// Server mode: the window is created directly at the remote URL
+		// (see main()); SetURL-based switching crashes wails3 beta.13.
+		log.Printf("boot: server mode %s - window already loads remote URL, nothing to do", url)
 		return
 	}
 	s := a.store.get()
@@ -337,11 +330,20 @@ func main() {
 		applyAppIcon(app)
 	})
 
+	// Server mode (default): create the window directly at the remote URL.
+	// Navigating later via window.SetURL() crashes wails3 beta.13, so the
+	// initial URL must be decided here, before the webview is created.
+	initialURL := os.Getenv("OCTOP_DESKTOP_URL")
+	if initialURL == "" {
+		initialURL = zbsworkDefaultServerURL
+	}
+	log.Printf("main: initial window URL %s", initialURL)
+
 	win := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:                "ZBSwork",
 		Width:                1200,
 		Height:               800,
-		URL:                  "/",
+		URL:                  initialURL,
 		Frameless:            true,
 		AllowSimpleEventEmit: true,
 		BackgroundColour:     application.NewRGB(247, 248, 250),
