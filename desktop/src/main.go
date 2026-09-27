@@ -161,7 +161,6 @@ func (a *App) setStatus(msg string) {
 const zbsworkDefaultServerURL = "https://zbsworkoctoplink.api.zhangbaoshan.cn:8443"
 
 func (a *App) boot() {
-	log.Printf("boot: enter")
 	locale := LocaleEN
 	if a.store != nil {
 		locale = a.store.get().Locale
@@ -173,7 +172,6 @@ func (a *App) boot() {
 	if url != "" {
 		// Server mode: the window is created directly at the remote URL
 		// (see main()); SetURL-based switching crashes wails3 beta.13.
-		log.Printf("boot: server mode %s - window already loads remote URL, nothing to do", url)
 		return
 	}
 	s := a.store.get()
@@ -202,23 +200,17 @@ func (a *App) boot() {
 }
 
 func (a *App) showDashboard(base string) {
-	log.Printf("showDashboard: enter")
 	if a.window == nil {
-		log.Printf("showDashboard: window nil, return")
 		return
 	}
 	a.window.SetURL(base)
-	log.Printf("showDashboard: SetURL done")
 	a.scheduleDragOverlay()
-	log.Printf("showDashboard: scheduleDragOverlay done")
 	s := a.store.get()
-	log.Printf("showDashboard: store got")
 	go func() {
 		time.Sleep(800 * time.Millisecond)
 		a.applyDashboardPrefs(s)
 	}()
 	a.setStatus(desktopText(s.Locale, copyStatusReady))
-	log.Printf("showDashboard: all done")
 }
 
 func (a *App) hideToTray() {
@@ -337,7 +329,6 @@ func main() {
 	if initialURL == "" {
 		initialURL = zbsworkDefaultServerURL
 	}
-	log.Printf("main: initial window URL %s", initialURL)
 
 	win := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:                "ZBSwork",
@@ -427,10 +418,8 @@ func main() {
 	api.scheduleDragOverlay()
 	go api.boot()
 
-	log.Printf("main: entering app.Run")
 	if err := app.Run(); err != nil {
 		log.Printf("app.Run returned error: %v", err)
 		log.Fatal(err)
 	}
-	log.Printf("app.Run returned normally - exiting")
 }
