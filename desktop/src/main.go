@@ -209,17 +209,23 @@ func (a *App) boot() {
 }
 
 func (a *App) showDashboard(base string) {
+	log.Printf("showDashboard: enter")
 	if a.window == nil {
+		log.Printf("showDashboard: window nil, return")
 		return
 	}
 	a.window.SetURL(base)
+	log.Printf("showDashboard: SetURL done")
 	a.scheduleDragOverlay()
+	log.Printf("showDashboard: scheduleDragOverlay done")
 	s := a.store.get()
+	log.Printf("showDashboard: store got")
 	go func() {
 		time.Sleep(800 * time.Millisecond)
 		a.applyDashboardPrefs(s)
 	}()
 	a.setStatus(desktopText(s.Locale, copyStatusReady))
+	log.Printf("showDashboard: all done")
 }
 
 func (a *App) hideToTray() {
