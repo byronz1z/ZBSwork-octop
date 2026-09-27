@@ -156,12 +156,20 @@ func (a *App) setStatus(msg string) {
 	a.app.Event.Emit("desktop:status", msg)
 }
 
+// zbsworkDefaultServerURL is baked in so a fresh install lands on the company
+// server with a plain double-click. OCTOP_DESKTOP_URL still overrides it.
+const zbsworkDefaultServerURL = "https://zbsworkoctoplink.api.zhangbaoshan.cn:8443"
+
 func (a *App) boot() {
 	locale := LocaleEN
 	if a.store != nil {
 		locale = a.store.get().Locale
 	}
-	if url := os.Getenv("OCTOP_DESKTOP_URL"); url != "" {
+	url := os.Getenv("OCTOP_DESKTOP_URL")
+	if url == "" {
+		url = zbsworkDefaultServerURL
+	}
+	if url != "" {
 		a.setStatus(desktopText(locale, copyStatusConnecting))
 		if err := waitHealth(locale, url, 60*time.Second); err != nil {
 			a.setStatus(err.Error())
