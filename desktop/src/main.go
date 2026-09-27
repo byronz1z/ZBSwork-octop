@@ -286,6 +286,16 @@ func (a *App) requestQuit() {
 	a.quitting = true
 	a.mu.Unlock()
 	if a.app != nil {
+		// Fallback: wails3 beta.13 Quit() can silently no-op (a panic inside
+		// cleanup is swallowed before PostQuitMessage runs), leaving the app
+		// unkillable from the UI. If the process is still alive shortly after,
+		// force it down. The runtime is stateless in server mode, so exiting
+		// without the graceful path loses nothing.
+		go func() {
+			time.Sleep(3 * time.Second)
+			log.Printf("graceful quit timed out, forcing exit")
+			os.Exit(0)
+		}()
 		a.app.Quit()
 	}
 }
@@ -389,6 +399,14 @@ func main() {
 		}
 	})
 	settingsWin.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		// Respect an in-flight quit; an unconditional Cancel() here would
+		// keep the settings window (and possibly the process) alive forever.
+		api.mu.Lock()
+		quit := api.quitting
+		api.mu.Unlock()
+		if quit {
+			return
+		}
 		e.Cancel()
 		settingsWin.Hide()
 	})
@@ -406,7 +424,20 @@ func main() {
 	} else {
 		tray.OnClick(func() { api.onTrayLeftClick() })
 	}
-	tray.OnRightClick(showSettings)
+	// Native right-click menu: with a menu set and no explicit right-click
+	// handler, wails3 shows it on right-click (smart defaults).
+	trayMenu := application.NewMenu()
+	trayMenu.Add("打开 ZBSwork").OnClick(func(*application.Context) {
+		api.showWindow()
+	})
+	trayMenu.Add("设置").OnClick(func(*application.Context) {
+		showSettings()
+	})
+	trayMenu.AddSeparator()
+	trayMenu.Add("退出 ZBSwork").OnClick(func(*application.Context) {
+		api.requestQuit()
+	})
+	tray.SetMenu(trayMenu)
 
 	if _, err := api.setAutostart(store.get().Autostart); err != nil {
 		log.Printf("sync autostart: %v", err)
