@@ -64,7 +64,7 @@ RUN NODE_ENV=production NODE_OPTIONS="--max-old-space-size=${NODE_MAX_OLD_SPACE_
 FROM python:3.12-slim AS runtime
 
 LABEL maintainer="OrcaKit Team"
-LABEL org.opencontainers.image.title="Octop"
+LABEL org.opencontainers.image.title="ZBSwork"
 LABEL org.opencontainers.image.description="Smarter self-hosted AI assistant — multi-user, multi-agent."
 LABEL org.opencontainers.image.source="https://github.com/TencentCloud/orca"
 LABEL org.opencontainers.image.licenses="MIT"
@@ -117,7 +117,10 @@ COPY --from=frontend-builder /build/src/octop/dashboard/ ./src/octop/dashboard/
 
 COPY .env.example ./
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Windows 宿主机克隆会把脚本换成 CRLF，导致容器内 `#!/usr/bin/env bash\r` 无法执行
+# （退出码 127）。构建时统一剥离 CR 并赋可执行位，避免依赖宿主机换行符设置。
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     if [ -n "$PIP_INDEX_URL" ]; then \

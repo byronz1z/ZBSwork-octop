@@ -49,8 +49,8 @@ _PLATFORM_CONFIGS = {
         "open_base": "https://open.feishu.cn",
         "accounts_domain": "https://accounts.feishu.cn",
         "lark_domain": "https://accounts.larksuite.com",
-        "default_greeting": "Hi，我是你刚刚使用 Octop 创建的飞书机器人，你现在可以跟我聊天了！",
-        "app_desc": "由 Octop 一键创建的飞书机器人",
+        "default_greeting": "Hi，我是你刚刚使用 ZBSwork 创建的飞书机器人，你现在可以跟我聊天了！",
+        "app_desc": "由 ZBSwork 一键创建的飞书机器人",
         "state_file_prefix": "octop-feishu-bot",
     },
     "lark": {

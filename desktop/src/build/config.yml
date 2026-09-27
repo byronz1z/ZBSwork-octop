@@ -5,11 +5,11 @@
 version: "3"
 
 info:
-  companyName: "Octop"
-  productName: "Octop"
+  companyName: "ZBSwork"
+  productName: "ZBSwork"
   productIdentifier: "com.tencent.octop"
-  description: "Octop desktop shell"
-  copyright: "(c) 2026, Octop"
+  description: "ZBSwork desktop shell"
+  copyright: "(c) 2026, ZBSwork"
   comments: "Wails v3 + green portable"
   version: "0.9.26"
 

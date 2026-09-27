@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Octop",
-  "short_name": "Octop",
+  "name": "ZBSwork",
+  "short_name": "ZBSwork",
   "description": "Smarter self-hosted AI assistant — multi-user, multi-agent",
   "start_url": "/",
   "scope": "/",
