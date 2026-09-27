@@ -161,6 +161,7 @@ func (a *App) setStatus(msg string) {
 const zbsworkDefaultServerURL = "https://zbsworkoctoplink.api.zhangbaoshan.cn:8443"
 
 func (a *App) boot() {
+	log.Printf("boot: enter")
 	locale := LocaleEN
 	if a.store != nil {
 		locale = a.store.get().Locale
@@ -170,12 +171,16 @@ func (a *App) boot() {
 		url = zbsworkDefaultServerURL
 	}
 	if url != "" {
+		log.Printf("boot: server mode, url=%s", url)
 		a.setStatus(desktopText(locale, copyStatusConnecting))
 		if err := waitHealth(locale, url, 60*time.Second); err != nil {
+			log.Printf("boot: waitHealth failed: %v", err)
 			a.setStatus(err.Error())
 			return
 		}
+		log.Printf("boot: health ok, calling showDashboard")
 		a.showDashboard(url)
+		log.Printf("boot: showDashboard returned")
 		return
 	}
 	s := a.store.get()
@@ -414,7 +419,10 @@ func main() {
 	api.scheduleDragOverlay()
 	go api.boot()
 
+	log.Printf("main: entering app.Run")
 	if err := app.Run(); err != nil {
+		log.Printf("app.Run returned error: %v", err)
 		log.Fatal(err)
 	}
+	log.Printf("app.Run returned normally - exiting")
 }
