@@ -262,7 +262,7 @@ export default function LoginPage() {
           src={
             isDark ? "/logo_horizontal_white.png" : "/logo_horizontal_dark.png"
           }
-          alt="Octop"
+          alt="ZBSwork"
           style={{
             height: 48,
             width: "auto",
