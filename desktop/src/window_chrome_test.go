@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -30,6 +31,54 @@ func TestDragOverlayJSStartsWailsDragWithoutCapturingOverlay(t *testing.T) {
 	}
 }
 
+func TestResizeOverlayJSInvokesWailsResizeForEveryEdge(t *testing.T) {
+	js := resizeOverlayJS()
+	for _, needle := range []string{
+		"wails:resize:",
+		"octopResizeEdge",
+		"octopResizeReady",
+		"octop-desktop-resize",
+		"'n'",
+		"'s'",
+		"'w'",
+		"'e'",
+		"'nw'",
+		"'ne'",
+		"'sw'",
+		"'se'",
+	} {
+		if !strings.Contains(js, needle) {
+			t.Fatalf("resize JS missing %q", needle)
+		}
+	}
+	if !strings.Contains(js, "var border = "+strconv.Itoa(resizeBorderSize)+";") {
+		t.Fatalf("resize JS must use the shared %dpx border constant", resizeBorderSize)
+	}
+}
+
+func TestResizeEdgesMatchWailsEdgeMap(t *testing.T) {
+	// wails:resize:<edge> must use the CSS cursor names wails' edgeMap
+	// understands; anything else is rejected as an unknown message.
+	want := []string{
+		"n-resize", "ne-resize", "e-resize", "se-resize",
+		"s-resize", "sw-resize", "w-resize", "nw-resize",
+	}
+	if len(w32HitTestCodes) != len(want) {
+		t.Fatalf("hit-test table covers %d edges, wails edgeMap has %d", len(w32HitTestCodes), len(want))
+	}
+	for _, edge := range want {
+		if _, ok := w32HitTestCodes[edge]; !ok {
+			t.Fatalf("hit-test table missing edge %q", edge)
+		}
+	}
+}
+
+func TestMainWindowMinSize(t *testing.T) {
+	if mainMinWidth != 900 || mainMinHeight != 600 {
+		t.Fatalf("main window min size is %dx%d, want 900x600", mainMinWidth, mainMinHeight)
+	}
+}
+
 func TestSplashHTMLHasFramelessWindowControls(t *testing.T) {
 	html, err := os.ReadFile("assets/index.html")
 	if err != nil {
@@ -45,9 +94,17 @@ func TestSplashHTMLHasFramelessWindowControls(t *testing.T) {
 		`data-action="close"`,
 		`id="mascot"`,
 		`id="loading-brand"`,
+		`.octop-desktop-resize {`,
+		`html[data-mode="settings"] .octop-desktop-resize`,
+		`"wails:resize:"`,
 	} {
 		if !strings.Contains(body, needle) {
 			t.Fatalf("splash HTML missing %q", needle)
+		}
+	}
+	for _, edge := range []string{"n", "s", "w", "e", "nw", "ne", "sw", "se"} {
+		if !strings.Contains(body, `data-octop-resize-edge="`+edge+`"`) {
+			t.Fatalf("splash HTML missing resize zone %q", edge)
 		}
 	}
 	if !strings.Contains(body, `data-chrome="mac"`) || !strings.Contains(body, `data-chrome="windows"`) {

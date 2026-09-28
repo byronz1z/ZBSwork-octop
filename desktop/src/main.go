@@ -21,6 +21,13 @@ var assets embed.FS
 
 const trayDoubleClick = 400 * time.Millisecond
 
+// mainMinWidth/mainMinHeight keep the dashboard layout usable; wails enforces
+// them natively via WM_GETMINMAXINFO (WebviewWindowOptions.MinWidth/MinHeight).
+const (
+	mainMinWidth  = 900
+	mainMinHeight = 600
+)
+
 // App is the Wails service bound to the shell UI.
 type App struct {
 	app            *application.App
@@ -260,18 +267,19 @@ func (a *App) onTrayLeftClick() {
 	})
 }
 
-func (a *App) installDragOverlay() {
+func (a *App) installWindowChrome() {
 	if a.window == nil {
 		return
 	}
 	a.window.ExecJS(dragOverlayJS())
+	a.window.ExecJS(resizeOverlayJS())
 }
 
 func (a *App) scheduleDragOverlay() {
 	go func() {
 		for range 40 {
 			time.Sleep(250 * time.Millisecond)
-			a.installDragOverlay()
+			a.installWindowChrome()
 			a.installExternalLinks()
 		}
 	}()
@@ -322,12 +330,22 @@ func main() {
 		Title:                "Octop",
 		Width:                1200,
 		Height:               800,
+		MinWidth:             mainMinWidth,
+		MinHeight:            mainMinHeight,
 		URL:                  "/",
 		Frameless:            true,
 		AllowSimpleEventEmit: true,
 		BackgroundColour:     application.NewRGB(247, 248, 250),
 	})
 	api.window = win
+	// Frameless windows keep WS_THICKFRAME but lose the native border hit
+	// testing, so edge resizing is driven from the frontend: the injected
+	// resize overlay invokes wails:resize:<edge> and wails posts the matching
+	// WM_NCLBUTTONDOWN.
+	win.RegisterHook(events.Windows.WindowStartResize, func(e *application.WindowEvent) {
+		e.Cancel()
+		api.startWindowResize(win)
+	})
 	app.Event.On("desktop:toggle-maximise", func(_ *application.CustomEvent) {
 		win.ToggleMaximise()
 	})

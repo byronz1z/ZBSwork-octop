@@ -74,6 +74,15 @@
         user-select: none;
         -webkit-app-region: no-drag;
       }
+      .octop-desktop-resize {
+        position: fixed;
+        z-index: 2147483647;
+        box-sizing: border-box;
+        background: transparent;
+      }
+      html[data-mode="settings"] .octop-desktop-resize {
+        display: none;
+      }
       html[data-chrome="mac"] .ctrl-mac,
       html[data-chrome="windows"] .ctrl-win {
         display: flex;
@@ -419,6 +428,46 @@
   <body>
     <div class="window-chrome octop-desktop-drag" id="window-chrome"></div>
     <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="n"
+      style="top: 0; left: 6px; right: 6px; height: 6px; cursor: ns-resize"
+    ></div>
+    <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="s"
+      style="bottom: 0; left: 6px; right: 6px; height: 6px; cursor: ns-resize"
+    ></div>
+    <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="w"
+      style="left: 0; top: 6px; bottom: 6px; width: 6px; cursor: ew-resize"
+    ></div>
+    <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="e"
+      style="right: 0; top: 6px; bottom: 6px; width: 6px; cursor: ew-resize"
+    ></div>
+    <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="nw"
+      style="top: 0; left: 0; width: 6px; height: 6px; cursor: nwse-resize"
+    ></div>
+    <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="ne"
+      style="top: 0; right: 0; width: 6px; height: 6px; cursor: nesw-resize"
+    ></div>
+    <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="sw"
+      style="bottom: 0; left: 0; width: 6px; height: 6px; cursor: nesw-resize"
+    ></div>
+    <div
+      class="octop-desktop-resize"
+      data-octop-resize-edge="se"
+      style="bottom: 0; right: 0; width: 6px; height: 6px; cursor: nwse-resize"
+    ></div>
+    <div
       class="window-controls ctrl-mac"
       data-chrome="mac"
       data-octop-no-drag="true"
@@ -660,6 +709,23 @@
         }
         emitWindowAction(action);
       });
+
+      // Frameless edge resize: the Go side turns wails:resize:<edge> into a
+      // native WM_NCLBUTTONDOWN resize loop (see window_chrome.go).
+      document.body.addEventListener(
+        "mousedown",
+        (event) => {
+          if (event.button !== 0) return;
+          const zone = event.target.closest(".octop-desktop-resize");
+          if (!zone) return;
+          event.preventDefault();
+          event.stopPropagation();
+          window._wails?.invoke(
+            "wails:resize:" + zone.dataset.octopResizeEdge + "-resize",
+          );
+        },
+        true,
+      );
 
       async function call(name, ...args) {
         return Call.ByName("main.App." + name, ...args);
