@@ -54,7 +54,7 @@ func (a *App) ServiceShutdown() error {
 	cmd := a.cmd
 	a.cmd = nil
 	a.mu.Unlock()
-	stopOctop(cmd)
+	stopZBSwork(cmd)
 	return nil
 }
 
@@ -185,8 +185,8 @@ func (a *App) boot() {
 	}
 	root := portableDir()
 	a.mu.Lock()
-	stopOctop(a.cmd)
-	cmd, err := startOctop(root, s.Port)
+	stopZBSwork(a.cmd)
+	cmd, err := startZBSwork(root, s.Port)
 	a.cmd = cmd
 	a.mu.Unlock()
 	if err != nil {
@@ -302,8 +302,8 @@ func main() {
 	}
 
 	app := application.New(application.Options{
-		Name:        "Octop",
-		Description: "Octop desktop",
+		Name:        "ZBSwork",
+		Description: "ZBSwork desktop",
 		Services: []application.Service{
 			application.NewService(api),
 		},
@@ -327,7 +327,7 @@ func main() {
 	})
 
 	win := app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:                "Octop",
+		Title:                "ZBSwork",
 		Width:                1200,
 		Height:               800,
 		MinWidth:             mainMinWidth,
@@ -360,7 +360,7 @@ func main() {
 	win.OnWindowEvent(events.Windows.WebViewNavigationCompleted, installDragOverlay)
 	win.OnWindowEvent(events.Linux.WindowLoadFinished, installDragOverlay)
 	settingsWin := app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:            "Octop 设置",
+		Title:            "ZBSwork 设置",
 		Width:            settingsWindowWidth,
 		Height:           settingsWindowOuterHeight(),
 		URL:              "/?settings=1",
@@ -404,7 +404,7 @@ func main() {
 
 	tray := app.SystemTray.New()
 	applyTrayIcon(tray)
-	tray.SetTooltip("Octop")
+	tray.SetTooltip("ZBSwork")
 	tray.AttachWindow(settingsWin).WindowOffset(6)
 	showSettings := func() { tray.ShowWindow() }
 	if trayLeftClickShowsSettings(runtime.GOOS) {

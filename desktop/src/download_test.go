@@ -40,7 +40,7 @@ func TestEnsurePortableUsesBundledPackage(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("OCTOP_HOME", home)
 
-	zipPath := filepath.Join(t.TempDir(), "Octop-"+greenPlat()+".zip")
+	zipPath := filepath.Join(t.TempDir(), "ZBSwork-"+greenPlat()+".zip")
 	t.Setenv("OCTOP_DESKTOP_PORTABLE_ZIP", zipPath)
 	writeTestGreenZip(t, zipPath, "1.0.0")
 
@@ -324,7 +324,7 @@ func TestFormatHealthWaitErrorIsActionableChinese(t *testing.T) {
 	}
 	msg := err.Error()
 	for _, needle := range []string{
-		"Octop 服务未在",
+		"ZBSwork 服务未在",
 		"1 分钟",
 		"http://127.0.0.1:8088",
 		"请确认",
@@ -344,10 +344,10 @@ func TestFormatHealthWaitErrorIsActionableChinese(t *testing.T) {
 func TestFormatHealthWaitErrorUsesEnglishWhenLocaleIsEn(t *testing.T) {
 	msg := formatHealthWaitError(LocaleEN, "http://127.0.0.1:8088", time.Minute, errors.New("connection refused"), 0).Error()
 	for _, needle := range []string{
-		"Octop did not become ready within",
+		"ZBSwork did not become ready within",
 		"1 minute",
 		"http://127.0.0.1:8088",
-		"make sure Octop is running",
+		"make sure ZBSwork is running",
 	} {
 		if !strings.Contains(msg, needle) {
 			t.Fatalf("English health error missing %q: %s", needle, msg)
@@ -387,7 +387,7 @@ func TestWaitHealthTimesOutWithFriendlyMessage(t *testing.T) {
 	if strings.Contains(err.Error(), "did not become healthy") {
 		t.Fatalf("should not use the old English diagnostic: %s", err)
 	}
-	if !strings.Contains(err.Error(), "Octop did not become ready within") {
+	if !strings.Contains(err.Error(), "ZBSwork did not become ready within") {
 		t.Fatalf("timeout should follow the desktop locale: %s", err)
 	}
 }
@@ -400,16 +400,16 @@ func writeTestGreenZip(t *testing.T, path, version string) {
 	}
 	w := zip.NewWriter(f)
 	files := []string{
-		"Octop-test/launch.py",
-		"Octop-test/VERSION.txt",
-		"Octop-test/packages/octop-" + version + ".dist-info/METADATA",
+		"ZBSwork-test/launch.py",
+		"ZBSwork-test/VERSION.txt",
+		"ZBSwork-test/packages/octop-" + version + ".dist-info/METADATA",
 	}
 	if runtime.GOOS == "windows" {
-		files = append(files, "Octop-test/runtime/python.exe")
+		files = append(files, "ZBSwork-test/runtime/python.exe")
 	} else {
 		files = append(files,
-			"Octop-test/runtime/bin/python3",
-			"Octop-test/runtime/bin/python3.12",
+			"ZBSwork-test/runtime/bin/python3",
+			"ZBSwork-test/runtime/bin/python3.12",
 		)
 	}
 	for _, name := range files {
@@ -451,7 +451,7 @@ func writeMetadataOnlyZip(t *testing.T, path, version string) {
 		t.Fatal(err)
 	}
 	w := zip.NewWriter(f)
-	entry, err := w.Create("Octop-test/packages/octop-" + version + ".dist-info/METADATA")
+	entry, err := w.Create("ZBSwork-test/packages/octop-" + version + ".dist-info/METADATA")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -473,7 +473,7 @@ func writeVersionOnlyZip(t *testing.T, path, version string) {
 		t.Fatal(err)
 	}
 	w := zip.NewWriter(f)
-	entry, err := w.Create("Octop-test/VERSION.txt")
+	entry, err := w.Create("ZBSwork-test/VERSION.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
