@@ -294,7 +294,7 @@ func bundledPortableZip() (string, error) {
 		if _, err := os.Stat(legacyPath); err == nil {
 			return legacyPath, nil
 		}
-		matches, _ := filepath.Glob(filepath.Join(search, "Octop-portable-"+plat+"-*.zip"))
+		matches, _ := filepath.Glob(filepath.Join(search, "ZBSwork-portable-"+plat+"-*.zip"))
 		if len(matches) > 0 {
 			sort.Strings(matches)
 			return matches[len(matches)-1], nil
