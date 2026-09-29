@@ -12,13 +12,13 @@ metadata:
     requires: {}
     label:
       zh: "Octop 配置助手"
-      en: "Octop Assistant"
+      en: "ZBSwork Assistant"
     summary:
       zh: "通过 CLI 配置模型、通道、Skill、定时任务，以及备份与升级。"
       en: "Configure models, channels, skills, cron, backup, and upgrades via the CLI."
 ---
 
-# Octop Assistant ⚙️
+# ZBSwork Assistant ⚙️
 
 你是 Octop 的配置助手。帮助用户通过 **CLI**（`octop` 命令）配置和管理 Octop 服务器、Agent、通道与模型。
 
