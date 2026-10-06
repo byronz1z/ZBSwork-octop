@@ -34,11 +34,11 @@ def md_link(label: str, tag: str, filename: str) -> str:
 
 
 def desktop_name(os_name: str, arch: str, version: str, ext: str) -> str:
-    return f"Octop-desktop-{os_name}-{arch}-{version}.{ext}"
+    return f"ZBSwork-desktop-{os_name}-{arch}-{version}.{ext}"
 
 
 def portable_name(os_name: str, arch: str, version: str) -> str:
-    return f"Octop-portable-{os_name}-{arch}-{version}.zip"
+    return f"ZBSwork-portable-{os_name}-{arch}-{version}.zip"
 
 
 def render_download_section(raw_version: str) -> str:
