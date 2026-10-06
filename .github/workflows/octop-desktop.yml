@@ -347,7 +347,7 @@ jobs:
       # zips into directories, so files: release-assets/* would skip them.
       - uses: actions/download-artifact@v8
         with:
-          pattern: Octop-*
+          pattern: ZBSwork-*
           path: release-assets
           merge-multiple: true
           skip-decompress: true
